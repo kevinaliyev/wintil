@@ -32,7 +32,7 @@ All shortcuts can be rebound live in **Options → Keybinds** or edited in `wint
 ## Building using the provided script
 
 ```powershell
-cd wintil/scripts/
+cd wintil\scripts\
 
 # Run the build script
 .\build.bat
