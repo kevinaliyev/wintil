@@ -1,0 +1,77 @@
+# wintil.toml - Declarative Configuration for Wintil
+# Native Windows Utility
+
+[general]
+# Enforce a single running instance via Win32 Named Mutex
+single_instance = true
+
+# Display non-intrusive floating OSD badge over the pinned window
+show_pin_hud = true
+
+# Append " [Pinned]" to the target window title, providing persistent visibility
+# across both the window title bar and the Windows taskbar
+pin_title_tag = true
+
+# Duration in milliseconds for the floating OSD infobox to remain visible
+notification_duration_ms = 800
+
+[pin_hud]
+# Text displayed when pinning a window
+text_pinned = "Pinned"
+
+# Text displayed when unpinning a window
+text_unpinned = "Unpinned"
+
+# Background color (hex code e.g. "#383E48" or presets: slate, charcoal, navy, black)
+bg_color = "#383E48"
+
+# Font text color (hex code e.g. "#FFFFFF" or color name)
+text_color = "#FFFFFF"
+
+# Text outline / stroke color (hex code e.g. "#000000" or color name)
+stroke_color = "#000000"
+
+# Card background opacity (0.1 to 1.0; 0.75 = 75% opacity)
+opacity = 0.75
+
+[pin_stroke]
+# Visual accent outline over pinned windows (Synchronized single-threaded overlay)
+enabled = false
+
+# Border thickness in pixels (1 to 8)
+thickness = 2
+
+# Border color (hex code e.g. "#80142A" or presets: burgundy, crimson, cyan, emerald, gold, white)
+color = "burgundy"
+
+[hotkeys]
+# Supported modifiers: Alt, Ctrl, Shift, Win
+# Virtual keys: F1-F24, A-Z, 0-9, Space, Tab, Enter, Esc, etc.
+maximize_toggle = "Alt+F"
+minimize_active = "Alt+H"
+close_active    = "Alt+Q"
+kill_active     = "Alt+Shift+Q"
+kill_all_by_exe = "Alt+Ctrl+Shift+Q"
+hide_to_tray    = "Alt+Shift+H"
+toggle_pin      = "Alt+P"
+restore_last    = "Alt+Shift+U"
+restore_all     = "Alt+Shift+R"
+unstick_keys    = "Alt+Shift+Backspace"
+
+[hider]
+# Interval in milliseconds for the background auto-hide daemon
+daemon_interval_ms = 750
+
+# Executables that will be automatically hidden from taskbar and screen
+# whenever they start or become visible (e.g. ["example_app.exe"])
+auto_hide_executables = []
+
+# Restore all hidden windows automatically when Wintil exits
+restore_all_on_exit = true
+
+[tray]
+# Hover tooltip for the system tray icon
+tooltip = "Wintil"
+
+# Path to custom tray icon (.ico or .png, falls back to embedded icon)
+icon_path = "assets/icon.ico"
