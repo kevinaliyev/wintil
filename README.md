@@ -29,6 +29,17 @@ All shortcuts can be rebound live in **Options → Keybinds** or edited in `wint
 | `Alt + Shift + Backspace` | Unstick Keys | Flushes latched modifier keys (`Ctrl`, `Alt`, `Shift`, `Win`) |
 
 ---
+## Building using the provided script
+
+```powershell
+cd wintil/scripts/
+
+# Run the build script
+.\build.bat
+```
+You can click to execute the wintil executable in /wintil/target/release/wintil.exe from file explorer;                                
+
+**I would recommend setting it as a scheduled task** *(this can be done through the wintil GUI for convenience)*
 
 ## Building from Source
 
