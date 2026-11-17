@@ -68,6 +68,35 @@ pub fn parse_task_xml(xml: &str) -> StartupTaskStatus {
     }
 }
 
+/// Returns `true` if an installed task XML is missing battery/idle persistence settings.
+pub fn task_xml_needs_power_fix(xml: &str) -> bool {
+    if !xml.contains("<Task") {
+        return false;
+    }
+    !xml.contains("<DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>")
+        || !xml.contains("<StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>")
+        || !xml.contains("<StopOnIdleEnd>false</StopOnIdleEnd>")
+        || !xml.contains("<ExecutionTimeLimit>PT0S</ExecutionTimeLimit>")
+}
+
+/// Silently upgrades an existing enabled "Wintil" scheduled task if it has restrictive
+/// battery or idle termination settings (e.g. from legacy `schtasks /create` defaults).
+pub fn ensure_persistent_task_if_needed() {
+    let mut cmd = std::process::Command::new("schtasks.exe");
+    cmd.creation_flags(CREATE_NO_WINDOW);
+    cmd.args(["/query", "/tn", "Wintil", "/xml"]);
+
+    if let Ok(out) = cmd.output() {
+        if out.status.success() {
+            let xml = String::from_utf8_lossy(&out.stdout);
+            let status = parse_task_xml(&xml);
+            if status.is_installed && status.is_enabled && task_xml_needs_power_fix(&xml) {
+                create_or_update_task_internal(status.is_highest_privilege, false);
+            }
+        }
+    }
+}
+
 /// Toggles the "Wintil" startup task on or off in Task Scheduler.
 pub fn toggle_task() {
     let status = query_task_status();
@@ -99,6 +128,10 @@ pub fn toggle_elevation() {
 /// Uses XML registration to guarantee that laptop battery power transitions and idle resumes
 /// never cause Windows Task Scheduler to prematurely terminate the background process.
 pub fn create_or_update_task(highest_privilege: bool) {
+    create_or_update_task_internal(highest_privilege, true);
+}
+
+fn create_or_update_task_internal(highest_privilege: bool, allow_uac_prompt: bool) {
     let exe_path = match std::env::current_exe() {
         Ok(p) => p.to_string_lossy().to_string(),
         Err(_) => return,
@@ -161,8 +194,8 @@ pub fn create_or_update_task(highest_privilege: bool) {
     }
 
     // Direct registration failed (typically Access Denied when attempting HighestAvailable as standard user).
-    // Prompt for administrative UAC elevation via Win32 ShellExecuteW runas.
-    if highest_privilege {
+    // Prompt for administrative UAC elevation via Win32 ShellExecuteW runas when requested.
+    if highest_privilege && allow_uac_prompt {
         let params = format!(
             "/create /tn \"Wintil\" /xml \"{}\" /f",
             temp_xml_path.display()
@@ -229,6 +262,35 @@ mod tests {
         assert!(!st.is_installed);
         assert!(!st.is_enabled);
         assert!(!st.is_highest_privilege);
+    }
+
+    #[test]
+    fn test_task_xml_needs_power_fix() {
+        let legacy_xml = r#"<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <Settings>
+    <DisallowStartIfOnBatteries>true</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>true</StopIfGoingOnBatteries>
+    <IdleSettings>
+      <StopOnIdleEnd>true</StopOnIdleEnd>
+    </IdleSettings>
+  </Settings>
+</Task>"#;
+        assert!(task_xml_needs_power_fix(legacy_xml));
+
+        let persistent_xml = r#"<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <Settings>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <ExecutionTimeLimit>PT0S</ExecutionTimeLimit>
+    <IdleSettings>
+      <StopOnIdleEnd>false</StopOnIdleEnd>
+    </IdleSettings>
+  </Settings>
+</Task>"#;
+        assert!(!task_xml_needs_power_fix(persistent_xml));
+        assert!(!task_xml_needs_power_fix("ERROR: not found"));
     }
 }
 

@@ -1529,6 +1529,7 @@ fn main() {
     }));
 
     sentry::init_launch_error_baseline();
+    startup::ensure_persistent_task_if_needed();
 
     // Register Win32 message window class
     let class_name = w!("WintilMessageWindowClass");
