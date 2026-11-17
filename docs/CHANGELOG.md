@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.1] - 2026-11-17
+
+### Changed
+- Version increment to 0.3.1.
+
+---
+
 ## [Unreleased]
 
 ### Added
@@ -18,6 +25,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed a bug where toggling fake fullscreen on windows spawned extending below the taskbar or toggling between maximize (`Alt + F`) and fake fullscreen (`Alt + Shift + F`) left a frozen/dead bottom strip (e.g., in Windows Terminal / XAML Island apps) or placed windows under the taskbar.
   - Pre-maximizes non-maximized windows (`ShowWindow(SW_MAXIMIZE)` + `SendMessageTimeoutW(WM_NULL)`) with chrome intact before stripping styles so XAML/DirectComposition child surfaces reflow cleanly to `rcWork` while preserving the original pre-fullscreen `WINDOWPLACEMENT`.
   - Strips `WS_MAXIMIZE | WS_MINIMIZE` without mutating `WS_OVERLAPPED` windows to `WS_POPUP`, passes `SWP_NOCOPYBITS` and `RedrawWindow`, commits `SWP_FRAMECHANGED` before `SetWindowPlacement` on restore, skips already-borderless native fullscreen windows, and exits fake fullscreen before `ToggleMaximize`.
+- **Chromium Video Freeze on `Alt+Q` / `Alt+Shift+H` & PowerToys Run Reopen (`src/window/mod.rs`, `src/hider/mod.rs`, `src/main.rs`)**:
+  - Removed `clean_release_held_modifiers()` calls from `CloseActive`, `KillActive`, `KillAllByExe`, and `HideToTray` hotkey handlers in `src/main.rs` so synthetic `SendInput` modifier key-up bursts are no longer injected while keys are still physically held.
+  - Added `activate_next_window()` in `src/window/mod.rs` to transfer foreground focus to the next visible non-tool window in Z-order (`GW_HWNDNEXT` + `SetForegroundWindow`) before posting `WM_SYSCOMMAND(SC_CLOSE)` or calling `ShowWindow(SW_HIDE)`, eliminating multi-second Chromium/DWM video presentation stalls without minimizing target windows (`SW_MINIMIZE`) so tray-minimizing apps reopen normally via PowerToys Run.
+- **Window Hider Status Monitor (`src/main.rs`)**:
+  - Updated the `Window Hider` service status in the Services monitor to report `Active` whenever any window is manually hidden via `Alt+Shift+H` (`hidden_count > 0`), even when the background auto-hide polling thread is inactive.
 
 ---
 

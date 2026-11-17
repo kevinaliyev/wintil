@@ -440,15 +440,16 @@ pub fn app_get_flyout_snapshot() -> Option<FlyoutSnapshot> {
         let hider_active = st.auto_hide_service.is_some();
         let hider_count = st.config.hider.auto_hide_executables.len();
         let hidden_count = st.store.list_hidden().len();
+        let is_hider_active = hider_active || hidden_count > 0;
         services.push(ServiceSnapshotInfo {
             id: "auto_hider".to_string(),
             name: "Window Hider".to_string(),
-            status: if hider_active {
+            status: if is_hider_active {
                 "Active".to_string()
             } else {
                 "Standby".to_string()
             },
-            is_active: hider_active,
+            is_active: is_hider_active,
             details: if hider_active {
                 format!(
                     "Watching {} target{} ({} hidden)",
@@ -457,7 +458,10 @@ pub fn app_get_flyout_snapshot() -> Option<FlyoutSnapshot> {
                     hidden_count
                 )
             } else if hidden_count > 0 {
-                format!("Lazy loaded, starts when needed ({hidden_count} hidden)")
+                format!(
+                    "{hidden_count} hidden {} • Auto-hide: off",
+                    if hidden_count == 1 { "window" } else { "windows" }
+                )
             } else {
                 "Lazy loaded, starts when needed.".to_string()
             },
@@ -1356,25 +1360,21 @@ fn handle_hotkey(action: HotkeyAction, state: &mut AppState) {
         HotkeyAction::CloseActive => {
             if let Some(fg) = get_foreground_window() {
                 close_window(fg);
-                crate::hotkeys::audit::clean_release_held_modifiers();
             }
         }
         HotkeyAction::KillActive => {
             if let Some(fg) = get_foreground_window() {
                 let _ = kill_active_process(fg);
-                crate::hotkeys::audit::clean_release_held_modifiers();
             }
         }
         HotkeyAction::KillAllByExe => {
             if let Some(fg) = get_foreground_window() {
                 let _ = kill_all_active_by_exe(fg);
-                crate::hotkeys::audit::clean_release_held_modifiers();
             }
         }
         HotkeyAction::HideToTray => {
             if let Some(target) = crate::window::get_foreground_window() {
                 state.store.hide_window(target);
-                crate::hotkeys::audit::clean_release_held_modifiers();
             }
         }
         HotkeyAction::TogglePin => {

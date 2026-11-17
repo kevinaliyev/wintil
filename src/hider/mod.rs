@@ -5,7 +5,7 @@ use std::sync::Arc;
 use std::time::Instant;
 use windows::Win32::Foundation::HWND;
 use windows::Win32::UI::WindowsAndMessaging::{
-    IsWindow, SetForegroundWindow, ShowWindow, SW_HIDE, SW_SHOW,
+    IsIconic, IsWindow, SetForegroundWindow, ShowWindow, SW_HIDE, SW_RESTORE, SW_SHOW,
 };
 
 use crate::window::{get_window_title, process};
@@ -43,6 +43,8 @@ impl HiderStore {
                 .and_then(process::get_process_name)
                 .unwrap_or_else(|| "Unknown".to_string());
 
+            // Transfer foreground focus cleanly before cloaking without minimizing
+            crate::window::activate_next_window(hwnd);
             // Cloak from desktop & taskbar
             let _ = ShowWindow(hwnd, SW_HIDE);
 
@@ -74,6 +76,9 @@ impl HiderStore {
                 let hwnd = HWND(item.hwnd as _);
                 if IsWindow(hwnd).as_bool() {
                     let _ = ShowWindow(hwnd, SW_SHOW);
+                    if IsIconic(hwnd).as_bool() {
+                        let _ = ShowWindow(hwnd, SW_RESTORE);
+                    }
                     let _ = SetForegroundWindow(hwnd);
                 }
             }
@@ -92,6 +97,9 @@ impl HiderStore {
                 let hwnd = HWND(item.hwnd as _);
                 if IsWindow(hwnd).as_bool() {
                     let _ = ShowWindow(hwnd, SW_SHOW);
+                    if IsIconic(hwnd).as_bool() {
+                        let _ = ShowWindow(hwnd, SW_RESTORE);
+                    }
                     let _ = SetForegroundWindow(hwnd);
                     return Some(item.title);
                 }
@@ -110,6 +118,9 @@ impl HiderStore {
                 let hwnd = HWND(item.hwnd as _);
                 if IsWindow(hwnd).as_bool() {
                     let _ = ShowWindow(hwnd, SW_SHOW);
+                    if IsIconic(hwnd).as_bool() {
+                        let _ = ShowWindow(hwnd, SW_RESTORE);
+                    }
                     restored += 1;
                 }
             }

@@ -4,10 +4,10 @@ pub mod process;
 use windows::Win32::Foundation::{HWND, LPARAM, POINT, RECT, WPARAM};
 use windows::Win32::Graphics::Dwm::{DwmGetWindowAttribute, DWMWA_EXTENDED_FRAME_BOUNDS};
 use windows::Win32::UI::WindowsAndMessaging::{
-    GetAncestor, GetCursorPos, GetForegroundWindow, GetShellWindow, GetWindowRect,
-    GetWindowTextLengthW, GetWindowTextW, IsWindow, IsWindowVisible, IsZoomed, PostMessageW,
-    ShowWindow, WindowFromPoint, GA_ROOT, SC_CLOSE, SW_MAXIMIZE, SW_MINIMIZE, SW_RESTORE,
-    WM_SYSCOMMAND,
+    GetAncestor, GetCursorPos, GetForegroundWindow, GetShellWindow, GetWindow, GetWindowLongPtrW,
+    GetWindowRect, GetWindowTextLengthW, GetWindowTextW, IsWindow, IsWindowVisible, IsZoomed,
+    PostMessageW, SetForegroundWindow, ShowWindow, WindowFromPoint, GA_ROOT, GWL_EXSTYLE,
+    GW_HWNDNEXT, SC_CLOSE, SW_MAXIMIZE, SW_MINIMIZE, SW_RESTORE, WM_SYSCOMMAND, WS_EX_TOOLWINDOW,
 };
 
 /// Retrieves the true visible bounds of a window via DWM, falling back to GetWindowRect
@@ -112,9 +112,38 @@ pub fn minimize(hwnd: HWND) {
     }
 }
 
+/// Activates the next visible top-level window behind `hwnd` in Z-order
+/// so focus transfers cleanly before closing or hiding `hwnd` without minimizing it.
+pub fn activate_next_window(hwnd: HWND) {
+    unsafe {
+        let shell = GetShellWindow();
+        let mut cur = hwnd;
+        while let Ok(next) = GetWindow(cur, GW_HWNDNEXT) {
+            if next.0.is_null() {
+                break;
+            }
+            if next != shell && IsWindowVisible(next).as_bool() {
+                let ex_style = GetWindowLongPtrW(next, GWL_EXSTYLE) as u32;
+                if (ex_style & WS_EX_TOOLWINDOW.0) == 0 {
+                    let mut rect = RECT::default();
+                    if GetWindowRect(next, &mut rect).is_ok()
+                        && (rect.right - rect.left) > 0
+                        && (rect.bottom - rect.top) > 0
+                    {
+                        let _ = SetForegroundWindow(next);
+                        break;
+                    }
+                }
+            }
+            cur = next;
+        }
+    }
+}
+
 /// Gracefully closes the window (equivalent to Alt+F4)
 pub fn close_window(hwnd: HWND) {
     unsafe {
+        activate_next_window(hwnd);
         let _ = PostMessageW(
             hwnd,
             WM_SYSCOMMAND,
