@@ -20,6 +20,7 @@ pub enum HotkeyAction {
     RestoreLast = 108,
     RestoreAll = 109,
     UnstickKeys = 110,
+    FakeFullscreen = 111,
 }
 
 impl HotkeyAction {
@@ -35,6 +36,7 @@ impl HotkeyAction {
             108 => Some(HotkeyAction::RestoreLast),
             109 => Some(HotkeyAction::RestoreAll),
             110 => Some(HotkeyAction::UnstickKeys),
+            111 => Some(HotkeyAction::FakeFullscreen),
             _ => None,
         }
     }
@@ -64,6 +66,7 @@ impl HotkeyManager {
 
         let bindings = [
             (HotkeyAction::ToggleMaximize, &config.maximize_toggle),
+            (HotkeyAction::FakeFullscreen, &config.fake_fullscreen),
             (HotkeyAction::MinimizeActive, &config.minimize_active),
             (HotkeyAction::CloseActive, &config.close_active),
             (HotkeyAction::KillActive, &config.kill_active),

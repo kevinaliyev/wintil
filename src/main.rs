@@ -40,6 +40,7 @@ use crate::pin::hud::show_pin_hud;
 use crate::pin::stroke::StrokeManager;
 use crate::pin::PinStore;
 use crate::tray::{TrayManager, WM_APP_TRAY};
+use crate::window::fullscreen::FakeFullscreenStore;
 use crate::window::{
     close_window, get_foreground_window, kill_active_process, kill_all_active_by_exe,
     minimize, toggle_maximize,
@@ -85,6 +86,7 @@ struct AppState {
     last_config_modified: std::time::SystemTime,
     store: HiderStore,
     pin_store: PinStore,
+    fake_fullscreen: FakeFullscreenStore,
     stroke_mgr: StrokeManager,
     hotkeys: HotkeyManager,
     tray: TrayManager,
@@ -1073,6 +1075,7 @@ pub fn app_update_hotkey(action_id: &str, new_binding: &str) -> bool {
                 }
                 match action_id {
                     "maximize_toggle" => st.config.hotkeys.maximize_toggle = new_binding.to_string(),
+                    "fake_fullscreen" => st.config.hotkeys.fake_fullscreen = new_binding.to_string(),
                     "minimize_active" => st.config.hotkeys.minimize_active = new_binding.to_string(),
                     "close_active" => st.config.hotkeys.close_active = new_binding.to_string(),
                     "kill_active" => st.config.hotkeys.kill_active = new_binding.to_string(),
@@ -1284,6 +1287,7 @@ unsafe extern "system" fn window_proc(
                         if state.config.hider.restore_all_on_exit {
                             state.store.restore_all();
                         }
+                        state.fake_fullscreen.restore_all();
                         for h in state.pin_store.list_pinned() {
                             if state.config.general.pin_title_tag {
                                 state.pin_store.unpin_by_hwnd(h, true);
@@ -1308,6 +1312,7 @@ unsafe extern "system" fn window_proc(
                         if state.config.hider.restore_all_on_exit {
                             state.store.restore_all();
                         }
+                        state.fake_fullscreen.restore_all();
                         for h in state.pin_store.list_pinned() {
                             if state.config.general.pin_title_tag {
                                 state.pin_store.unpin_by_hwnd(h, true);
@@ -1335,6 +1340,11 @@ fn handle_hotkey(action: HotkeyAction, state: &mut AppState) {
         HotkeyAction::ToggleMaximize => {
             if let Some(fg) = get_foreground_window() {
                 toggle_maximize(fg);
+            }
+        }
+        HotkeyAction::FakeFullscreen => {
+            if let Some(fg) = get_foreground_window() {
+                state.fake_fullscreen.toggle(fg);
             }
         }
         HotkeyAction::MinimizeActive => {
@@ -1618,6 +1628,7 @@ fn main() {
                 last_config_modified,
                 store,
                 pin_store,
+                fake_fullscreen: FakeFullscreenStore::new(),
                 stroke_mgr,
                 hotkeys,
                 tray,
