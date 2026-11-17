@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Fake Fullscreen Mode (`src/window/fullscreen.rs`, `src/main.rs`)**:
+  - Added borderless work-area fullscreen toggle (`Alt + Shift + F` / `hotkeys.fake_fullscreen`) via `FakeFullscreenStore`, stripping window chrome, suppressing Windows 11 DWM border lines and corner rounding, and sizing windows to `rcWork` (`height - 1px`) to keep the taskbar accessible without triggering DWM fullscreen occlusion / Direct Flip.
+
+### Fixed
+- **Fake Fullscreen Desync, Stale Surface Rendering & Taskbar Overlap (`src/window/fullscreen.rs`, `src/main.rs`)**:
+  - Fixed a bug where toggling fake fullscreen on windows spawned extending below the taskbar or toggling between maximize (`Alt + F`) and fake fullscreen (`Alt + Shift + F`) left a frozen/dead bottom strip (e.g., in Windows Terminal / XAML Island apps) or placed windows under the taskbar.
+  - Pre-maximizes non-maximized windows (`ShowWindow(SW_MAXIMIZE)` + `SendMessageTimeoutW(WM_NULL)`) with chrome intact before stripping styles so XAML/DirectComposition child surfaces reflow cleanly to `rcWork` while preserving the original pre-fullscreen `WINDOWPLACEMENT`.
+  - Strips `WS_MAXIMIZE | WS_MINIMIZE` without mutating `WS_OVERLAPPED` windows to `WS_POPUP`, passes `SWP_NOCOPYBITS` and `RedrawWindow`, commits `SWP_FRAMECHANGED` before `SetWindowPlacement` on restore, skips already-borderless native fullscreen windows, and exits fake fullscreen before `ToggleMaximize`.
+
 ---
 
 ## [0.3.0] - 2026-11-15

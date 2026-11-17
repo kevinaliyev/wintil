@@ -30,6 +30,12 @@ Wintil is a native Rust Windows utility for global window hotkeys, always-on-top
 - `Alt + P` toggles `HWND_TOPMOST` via `SetWindowPos`.
 - Optional **Pin HUD** translucent floating badge (`show_pin_hud`), title bar tag (`pin_title_tag`), and **Border Stroke** outline (`pin_stroke.enabled`, `thickness`, `color`) whose `EVENT_OBJECT_LOCATIONCHANGE` hook only attaches while enabled and windows are pinned.
 
+### Fake Fullscreen (`Alt + Shift + F`)
+- **Usage**: Press `Alt + Shift + F` (configurable via `hotkeys.fake_fullscreen` in `wintil.toml` or **Options → Keybinds**) to toggle borderless work-area fullscreen on the active window. Pressing it again—or exiting Wintil—restores the window's original chrome, maximized state, and placement.
+- **Why Fake Fullscreen instead of native Fullscreen (`F11`)?**
+  - **No DWM Occlusion / Direct Flip**: Native fullscreen covers `rcMonitor` and triggers DWM fullscreen occlusion, causing black-screen flickers or delays when Alt-Tabbing or opening overlays/flyouts. Fake fullscreen sizes to `rcWork` (`height - 1px`), keeping the taskbar visible and transitions instant.
+  - **Works on Any Window**: Brings borderless fullscreen to apps that have no built-in fullscreen shortcut, without hiding application-internal UI you still want to see.
+
 ### Quick Settings Flyout GUI
 Left-clicking the tray icon opens a DPI-aware popout flyout docked near the taskbar with three tabs:
 - **Services**: Live status for **Key Remapper**, **Crash Sentry**, **Automations Engine**, **Window Pinner**, and **Window Hider**, plus one-click **Subservices** (`Run Fix`). Crash Sentry highlights respawn status and escalates new errors since the last GUI session (`!` → `!` → `!!!` → `Critical Errors!`).

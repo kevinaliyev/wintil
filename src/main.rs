@@ -1339,6 +1339,7 @@ fn handle_hotkey(action: HotkeyAction, state: &mut AppState) {
     match action {
         HotkeyAction::ToggleMaximize => {
             if let Some(fg) = get_foreground_window() {
+                state.fake_fullscreen.exit(fg);
                 toggle_maximize(fg);
             }
         }
