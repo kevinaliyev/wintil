@@ -326,12 +326,13 @@ pub fn find_hotkey_conflict(
     candidate_binding: &str,
 ) -> Option<&'static str> {
     let candidate = parse_keybind(candidate_binding)?;
-    let entries: [(&str, &str, &'static str); 10] = [
+    let entries: [(&str, &str, &'static str); 11] = [
         ("toggle_pin", &hotkeys.toggle_pin, "Pin Window Always-on-Top"),
         ("hide_to_tray", &hotkeys.hide_to_tray, "Hide Active Window to Tray"),
         ("restore_last", &hotkeys.restore_last, "Restore Last Hidden Window"),
         ("restore_all", &hotkeys.restore_all, "Restore All Hidden Windows"),
         ("maximize_toggle", &hotkeys.maximize_toggle, "Toggle Maximize / Restore"),
+        ("fake_fullscreen", &hotkeys.fake_fullscreen, "Toggle Fake Fullscreen"),
         ("minimize_active", &hotkeys.minimize_active, "Minimize Active Window"),
         ("close_active", &hotkeys.close_active, "Close Active Window"),
         ("kill_active", &hotkeys.kill_active, "Force Kill Active Process"),

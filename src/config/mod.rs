@@ -132,6 +132,8 @@ impl Default for GeneralConfig {
 pub struct HotkeysConfig {
     #[serde(default = "default_maximize")]
     pub maximize_toggle: String,
+    #[serde(default = "default_fake_fullscreen")]
+    pub fake_fullscreen: String,
     #[serde(default = "default_minimize")]
     pub minimize_active: String,
     #[serde(default = "default_close")]
@@ -152,6 +154,10 @@ pub struct HotkeysConfig {
     pub unstick_keys: String,
 }
 
+fn default_fake_fullscreen() -> String {
+    "Alt+Shift+F".to_string()
+}
+
 fn default_unstick_keys() -> String {
     "Alt+Shift+Backspace".to_string()
 }
@@ -160,6 +166,7 @@ impl Default for HotkeysConfig {
     fn default() -> Self {
         Self {
             maximize_toggle: "Alt+F".to_string(),
+            fake_fullscreen: "Alt+Shift+F".to_string(),
             minimize_active: "Alt+H".to_string(),
             close_active: "Alt+Q".to_string(),
             kill_active: "Alt+Shift+Q".to_string(),

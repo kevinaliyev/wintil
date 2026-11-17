@@ -1,3 +1,4 @@
+pub mod fullscreen;
 pub mod process;
 
 use windows::Win32::Foundation::{HWND, LPARAM, POINT, RECT, WPARAM};

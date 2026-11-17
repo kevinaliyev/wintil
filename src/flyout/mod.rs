@@ -2928,12 +2928,13 @@ unsafe fn paint_keybinds_subview(
     let mut sub_rc = scale.rect(28, 114, 392, 130);
     DrawTextW(hdc, &mut sub_w, &mut sub_rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
 
-    let hotkeys: [(&str, &str, &str, &str); 10] = [
+    let hotkeys: [(&str, &str, &str, &str); 11] = [
         ("toggle_pin", "Pin window always-on-top", "Toggles topmost state and renders process-hugging dynamic border", &snap.hotkeys.toggle_pin),
         ("hide_to_tray", "Hide active window to tray", "Conceals foreground window and adds it to hidden registry", &snap.hotkeys.hide_to_tray),
         ("restore_last", "Restore last hidden window", "Restores most recently hidden window and recovers focus", &snap.hotkeys.restore_last),
         ("restore_all", "Restore all hidden windows", "Restores all currently hidden windows back to desktop", &snap.hotkeys.restore_all),
         ("maximize_toggle", "Toggle maximize and restore", "Maximizes or restores foreground window bounds", &snap.hotkeys.maximize_toggle),
+        ("fake_fullscreen", "Toggle fake fullscreen", "Borderless work-area fullscreen without DWM occlusion", &snap.hotkeys.fake_fullscreen),
         ("minimize_active", "Minimize active window", "Minimizes active foreground window to taskbar", &snap.hotkeys.minimize_active),
         ("close_active", "Close active window", "Sends WM_CLOSE request to foreground application", &snap.hotkeys.close_active),
         ("kill_active", "Force kill active process", "Immediately terminates active process tree", &snap.hotkeys.kill_active),
@@ -3079,12 +3080,13 @@ unsafe fn paint_keybinds_editor(
     let card_rc = scale.rect(16, 68, 404, 494);
     draw_card_frame(hdc, card_rc, scale);
 
-    let actions: [(&str, &str, &str, &str); 10] = [
+    let actions: [(&str, &str, &str, &str); 11] = [
         ("toggle_pin", "Pin Window Always-on-Top", "Toggles topmost state & renders border", &snap.hotkeys.toggle_pin),
         ("hide_to_tray", "Hide Active Window to Tray", "Conceals foreground window to hidden registry", &snap.hotkeys.hide_to_tray),
         ("restore_last", "Restore Last Hidden Window", "Restores most recently hidden window", &snap.hotkeys.restore_last),
         ("restore_all", "Restore All Hidden Windows", "Restores all currently hidden windows", &snap.hotkeys.restore_all),
         ("maximize_toggle", "Toggle Maximize / Restore", "Maximizes or restores foreground bounds", &snap.hotkeys.maximize_toggle),
+        ("fake_fullscreen", "Toggle Fake Fullscreen", "Borderless work-area without DWM occlusion", &snap.hotkeys.fake_fullscreen),
         ("minimize_active", "Minimize Active Window", "Minimizes foreground window to taskbar", &snap.hotkeys.minimize_active),
         ("close_active", "Close Active Window", "Sends WM_CLOSE to foreground application", &snap.hotkeys.close_active),
         ("kill_active", "Force Kill Active Process", "Immediately terminates active process tree", &snap.hotkeys.kill_active),

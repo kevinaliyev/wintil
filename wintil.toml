@@ -48,6 +48,7 @@ color = "burgundy"
 # Supported modifiers: Alt, Ctrl, Shift, Win
 # Virtual keys: F1-F24, A-Z, 0-9, Space, Tab, Enter, Esc, etc.
 maximize_toggle = "Alt+F"
+fake_fullscreen = "Alt+Shift+F"
 minimize_active = "Alt+H"
 close_active    = "Alt+Q"
 kill_active     = "Alt+Shift+Q"
